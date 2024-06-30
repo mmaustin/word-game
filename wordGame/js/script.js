@@ -9,14 +9,25 @@ const span = document.querySelector('span');
 const message = document.querySelector('.message');
 const hiddenButton = document.querySelector('.play-again hide');
 
-const word = "magnolia";
+let word = "magnolia";
 const lettersGuessed = [];
+let guessesRemaining = 8;
+
+const getWord = async function () {
+  const res = await fetch("https://gist.githubusercontent.com/skillcrush-curriculum/7061f1d4d3d5bfe47efbfbcfe42bf57e/raw/5ffc447694486e7dea686f34a6c085ae371b43fe/words.txt");
+  const data = await res.text();
+  const wordArray = data.split("\n");
+  const wordIndex = Math.floor(Math.random() * wordArray.length);
+  word = wordArray[wordIndex].trim();
+  updateWordProgress(word);
+};
+getWord();
+
 
 const updateWordProgress = function (word) {
   const updatedWord = word.split('').map(l => { return '●' });
   wordInProgress.innerText = updatedWord.join('');
 };
-updateWordProgress(word);
 
 button.addEventListener('click', function (e) {
   e.preventDefault();
@@ -50,7 +61,8 @@ const makeGuess = function (letter) {
   } else {
     lettersGuessed.push(letterToUpper);
     lettersGuessedDisplay();
-    wordProgress(lettersGuessed)
+    wordProgress(lettersGuessed);
+    playerGuess(letterToUpper);
   };
 };
 
@@ -76,6 +88,24 @@ const wordProgress = function (lettersArray) {
   }
   wordInProgress.innerText = updatedCharacters.join('');
   checkVictory(wordInProgress);
+};
+
+const playerGuess = function (guess) {
+  const uppercaseWord = word.toUpperCase();
+  if (uppercaseWord.includes(guess)) {
+    message.innerText = `Your guess is correct.`;
+  } else {
+    message.innerText = `You guessed wrong.`;
+    guessesRemaining--;
+  };
+
+  if (guessesRemaining === 0) {
+    remainingGuesses.innerText = `You are out of guesses. The word is ${uppercaseWord}`;
+  } else if (guessesRemaining === 1) {
+    span.innerText = `1 guess`;
+  } else (
+    span.innerText = `${guessesRemaining} guesses`
+  )
 };
 
 const checkVictory = function (wordInProgress) {
