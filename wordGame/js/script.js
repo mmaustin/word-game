@@ -7,11 +7,13 @@ const wordInProgress = document.querySelector('.word-in-progress');
 const remainingGuesses = document.querySelector('.remaining');
 const span = document.querySelector('span');
 const message = document.querySelector('.message');
-const hiddenButton = document.querySelector('.play-again hide');
+const playAgainButton = document.querySelector('.play-again');
 
 let word = "magnolia";
-const lettersGuessed = [];
-let guessesRemaining = 8;
+let lettersGuessed = [];
+let guessesRemaining = 3;
+//span.innerText = `${guessesRemaining} guesses`;
+
 
 const getWord = async function () {
   const res = await fetch("https://gist.githubusercontent.com/skillcrush-curriculum/7061f1d4d3d5bfe47efbfbcfe42bf57e/raw/5ffc447694486e7dea686f34a6c085ae371b43fe/words.txt");
@@ -38,7 +40,6 @@ button.addEventListener('click', function (e) {
     makeGuess(inputLetterValue);
   };
   inputLetter.value = '';
-
 });
 
 const inputCheck = function (input) {
@@ -100,7 +101,8 @@ const playerGuess = function (guess) {
   };
 
   if (guessesRemaining === 0) {
-    remainingGuesses.innerText = `You are out of guesses. The word is ${uppercaseWord}`;
+    message.innerHTML = `Out of guesses, Game Over. The word is <span class ="highlight">${uppercaseWord}</span>.`;
+    startOver();
   } else if (guessesRemaining === 1) {
     span.innerText = `1 guess`;
   } else (
@@ -111,7 +113,28 @@ const playerGuess = function (guess) {
 const checkVictory = function (wordInProgress) {
   if (wordInProgress.innerText === word.toUpperCase()) {
     message.classList.add('win');
-    message.innerHTML = `<p class="highlight">You guessed the correct word! Congrats!</p>`
+    message.innerHTML = `<p class="highlight">You guessed the correct word! Congrats!</p>`;
+    startOver();
   };
 };
 
+const startOver = function () {
+  button.classList.add('hide');
+  remainingGuesses.classList.add('hide');
+  guessedLetters.classList.add('hide');
+  playAgainButton.classList.remove('hide');
+};
+
+playAgainButton.addEventListener('click', function () {
+  message.classList.remove('win');
+  message.innerText = '';
+  guessedLetters.innerText = '';
+  guessesRemaining = 3;
+  lettersGuessed = [];
+  span.innerText = `${guessesRemaining} guesses`;
+  button.classList.remove('hide');
+  remainingGuesses.classList.remove('hide');
+  guessedLetters.classList.remove('hide');
+  playAgainButton.classList.add('hide');
+  getWord();
+});
